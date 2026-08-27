@@ -1,5 +1,8 @@
 English | [中文](README.zh.md)
 
+![CI](https://github.com/Lunatic029/dsh-clash-proxy/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 # dsh-clash-proxy
 
 Route DeepSeek Harness outbound HTTP through a local forward proxy (Clash, V2Ray, …), with automatic bypass of loopback and private networks.

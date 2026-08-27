@@ -1,5 +1,8 @@
 [English](README.md) | 中文
 
+![CI](https://github.com/Lunatic029/dsh-clash-proxy/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 # dsh-clash-proxy
 
 让 DeepSeek Harness 的出网流量走本地代理（Clash、V2Ray 等），并自动绕过回环与内网地址。
