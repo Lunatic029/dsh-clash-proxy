@@ -11,6 +11,7 @@ import { getGlobalDispatcher, ProxyAgent, setGlobalDispatcher } from 'undici'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
 import { NoProxyMatcher } from './no-proxy.js'
+import { probeProxy } from './probe.js'
 import { RoutingDispatcher } from './routing-dispatcher.js'
 
 export const name = 'dsh-clash-proxy'
@@ -40,24 +41,6 @@ function envProxy(): string | undefined {
     || process.env.HTTP_PROXY || process.env.http_proxy
     || process.env.ALL_PROXY || process.env.all_proxy
     || undefined
-}
-
-/** One-shot reachability probe of the proxy's host:port. */
-function probeProxy(proxyUrl: string, timeoutMs = 2000): Promise<boolean> {
-  return import('node:net').then((net) => new Promise((resolve) => {
-    let url: URL
-    try {
-      url = new URL(proxyUrl)
-    } catch {
-      resolve(false)
-      return
-    }
-    const socket = net.connect({ host: url.hostname, port: Number(url.port) || 80 })
-    socket.setTimeout(timeoutMs)
-    socket.on('connect', () => { socket.destroy(); resolve(true) })
-    socket.on('error', () => resolve(false))
-    socket.on('timeout', () => { socket.destroy(); resolve(false) })
-  }))
 }
 
 interface WebServerService {
