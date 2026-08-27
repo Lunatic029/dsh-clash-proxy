@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-	id: "dsh-proxy",
+	id: "dsh-clash-proxy",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
@@ -8,19 +8,19 @@ window.__ModuleLoader__.load({
 		let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 		//#region src/client/index.ts
 		/**
-		* dsh-proxy client half: fetches the proxy status once on mount and shows the
+		* dsh-clash-proxy client half: fetches the proxy status once on mount and shows the
 		* platform Toast when the proxy is unreachable. Composed through the
 		* shell.overlay slot; no hand-rolled timing or styles.
-		* @module dsh-proxy/client
+		* @module dsh-clash-proxy/client
 		*/
-		const name = "dsh-proxy";
+		const name = "dsh-clash-proxy";
 		const inject = ["slots"];
 		const WARN_TEXT = "代理不可达：未检测到 Clash，外网请求可能失败";
 		function ProxyWarning() {
 			const [show, setShow] = (0, react.useState)(false);
 			(0, react.useEffect)(() => {
 				let cancelled = false;
-				fetch("/dsh-proxy/status").then((response) => response.json()).then((status) => {
+				fetch("/dsh-clash-proxy/status").then((response) => response.json()).then((status) => {
 					if (!cancelled && status.reachable === false) setShow(true);
 				}).catch(() => {});
 				return () => {
@@ -36,8 +36,8 @@ window.__ModuleLoader__.load({
 		function apply(ctx) {
 			ctx.slots.inject("shell.overlay", () => ctx.slots.register({
 				name: "shell.overlay",
-				id: "dsh-proxy-toast",
-				label: () => "dsh-proxy"
+				id: "dsh-clash-proxy-toast",
+				label: () => "dsh-clash-proxy"
 			}, () => (0, react.createElement)(ProxyWarning)));
 		}
 		//#endregion

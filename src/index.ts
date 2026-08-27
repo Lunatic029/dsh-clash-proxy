@@ -1,10 +1,10 @@
 /**
- * dsh-proxy: route DeepSeek Harness outbound HTTP (LLM, web search/fetch)
+ * dsh-clash-proxy: route DeepSeek Harness outbound HTTP (LLM, web search/fetch)
  * through a local forward proxy such as Clash, while never proxying loopback
  * or private networks. Installs one process-global undici dispatcher for the
- * lifetime of this plugin, and exposes /dsh-proxy/status for the web client's
+ * lifetime of this plugin, and exposes /dsh-clash-proxy/status for the web client's
  * unreachable-proxy toast.
- * @module dsh-proxy
+ * @module dsh-clash-proxy
  */
 
 import { getGlobalDispatcher, ProxyAgent, setGlobalDispatcher } from 'undici'
@@ -13,7 +13,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import { NoProxyMatcher } from './no-proxy.js'
 import { RoutingDispatcher } from './routing-dispatcher.js'
 
-export const name = 'dsh-proxy'
+export const name = 'dsh-clash-proxy'
 
 /** Plugin configuration, overridable per profile via cordis.patch.yml. */
 export interface Config {
@@ -113,19 +113,19 @@ export function apply(ctx: Context, config?: Config): void {
     else process.env.ALL_PROXY = previousEnv.ALL_PROXY
     if (previousEnv.NO_PROXY === undefined) delete process.env.NO_PROXY
     else process.env.NO_PROXY = previousEnv.NO_PROXY
-  }, 'dsh-proxy: global dispatcher')
+  }, 'dsh-clash-proxy: global dispatcher')
 
   ctx.inject(['webServer'], (hostCtx: Context) => {
     const host = hostCtx as unknown as HostContext
     host.effect(() => host.webServer.register({
       kind: 'exact',
-      path: '/dsh-proxy/status',
+      path: '/dsh-clash-proxy/status',
       handler: async (_request, response) => {
         const reachable = await probeProxy(proxy)
         response.writeHead(200, { 'content-type': 'application/json' })
         response.end(JSON.stringify({ reachable }))
       },
-    }), 'dsh-proxy: status route')
+    }), 'dsh-clash-proxy: status route')
   })
 
   // Deferred past the synchronous boot phase: probing while the plugin tree
@@ -133,7 +133,7 @@ export function apply(ctx: Context, config?: Config): void {
   setTimeout(() => {
     void probeProxy(proxy).then((reachable) => {
       if (!reachable) {
-        process.stderr.write('dsh-proxy: proxy ' + proxy + ' is not reachable - outbound requests may fail until it is up\n')
+        process.stderr.write('dsh-clash-proxy: proxy ' + proxy + ' is not reachable - outbound requests may fail until it is up\n')
       }
     })
   }, 3000)

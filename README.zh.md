@@ -1,4 +1,4 @@
-# dsh-proxy
+# dsh-clash-proxy
 
 让 DeepSeek Harness 的出网流量走本地代理（Clash、V2Ray 等），并自动绕过回环与内网地址。
 
@@ -17,15 +17,15 @@
 ## 安装
 
 ```sh
-dsh plugin --profile web add github:<你的组织>/dsh-proxy
+dsh plugin --profile web add github:<你的组织>/dsh-clash-proxy
 # 或发布到 npm 后：
-dsh plugin --profile web add dsh-proxy
+dsh plugin --profile web add dsh-clash-proxy
 ```
 
 然后在 profile 的 `cordis.patch.yml` 里配置代理：
 
 ```yaml
-- id: dsh-proxy
+- id: dsh-clash-proxy
   config:
     proxy: 'http://127.0.0.1:7897'
 ```
@@ -52,7 +52,7 @@ dsh plugin --profile web add dsh-proxy
 
 - 安装一个进程级 undici dispatcher，按 NO_PROXY（含 IPv4 CIDR）把每个请求路由到代理或直连
 - 设置 `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` / `NO_PROXY`，让子进程继承同样的路由
-- 暴露 `GET /dsh-proxy/status` → `{ "reachable": boolean }`，网页端据此轮询并显示「代理不可达」toast
+- 暴露 `GET /dsh-clash-proxy/status` → `{ "reachable": boolean }`，网页端据此轮询并显示「代理不可达」toast
 
 插件卸载时会恢复之前的 dispatcher 和环境变量。
 

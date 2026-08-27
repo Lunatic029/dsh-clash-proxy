@@ -3,7 +3,7 @@
  * `EnvHttpProxyAgent` matcher handles only exact and suffix hostnames, so the
  * loopback and private-range bypass (which needs CIDR) lives here instead.
  * IPv6 is supported by exact address only; IPv6 CIDR is out of scope.
- * @module dsh-proxy/no-proxy
+ * @module dsh-clash-proxy/no-proxy
  */
 
 import { isIP } from 'node:net'

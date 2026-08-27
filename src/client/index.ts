@@ -1,15 +1,15 @@
 /**
- * dsh-proxy client half: fetches the proxy status once on mount and shows the
+ * dsh-clash-proxy client half: fetches the proxy status once on mount and shows the
  * platform Toast when the proxy is unreachable. Composed through the
  * shell.overlay slot; no hand-rolled timing or styles.
- * @module dsh-proxy/client
+ * @module dsh-clash-proxy/client
  */
 
 import { createElement, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Toast } from '@deepseek-ai/dsh-client-ui-primitives'
 
-export const name = 'dsh-proxy'
+export const name = 'dsh-clash-proxy'
 export const inject = ['slots']
 
 interface SlotsService {
@@ -31,7 +31,7 @@ function ProxyWarning(): ReactNode {
   const [show, setShow] = useState(false)
   useEffect(() => {
     let cancelled = false
-    fetch('/dsh-proxy/status')
+    fetch('/dsh-clash-proxy/status')
       .then((response) => response.json() as Promise<Status>)
       .then((status) => { if (!cancelled && status.reachable === false) setShow(true) })
       .catch(() => {})
@@ -44,7 +44,7 @@ function ProxyWarning(): ReactNode {
 export function apply(ctx: ClientContext): void {
   ctx.slots.inject('shell.overlay', () => ctx.slots.register({
     name: 'shell.overlay',
-    id: 'dsh-proxy-toast',
-    label: () => 'dsh-proxy',
+    id: 'dsh-clash-proxy-toast',
+    label: () => 'dsh-clash-proxy',
   }, () => createElement(ProxyWarning)))
 }

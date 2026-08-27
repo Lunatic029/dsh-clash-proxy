@@ -2,7 +2,7 @@
  * A dispatcher that routes each request to the proxy or to the direct
  * transport based on NO_PROXY. Only `dispatch` is overridden; the proxy agent
  * it delegates to owns connection teardown, closed separately on unload.
- * @module dsh-proxy/routing-dispatcher
+ * @module dsh-clash-proxy/routing-dispatcher
  */
 import { Dispatcher } from 'undici';
 import type { Dispatcher as DispatcherNS } from 'undici';

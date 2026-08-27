@@ -1,4 +1,4 @@
-# dsh-proxy
+# dsh-clash-proxy
 
 Route DeepSeek Harness outbound HTTP through a local forward proxy (Clash, V2Ray, …), with automatic bypass of loopback and private networks.
 
@@ -17,15 +17,15 @@ When your harness needs to reach the public internet through a proxy (for exampl
 ## Install
 
 ```sh
-dsh plugin --profile web add github:<your-org>/dsh-proxy
+dsh plugin --profile web add github:<your-org>/dsh-clash-proxy
 # or, once published to npm:
-dsh plugin --profile web add dsh-proxy
+dsh plugin --profile web add dsh-clash-proxy
 ```
 
 Then configure the proxy in the profile's `cordis.patch.yml`:
 
 ```yaml
-- id: dsh-proxy
+- id: dsh-clash-proxy
   config:
     proxy: 'http://127.0.0.1:7897'
 ```
@@ -52,7 +52,7 @@ plus `$NO_PROXY` and `config.noProxy`. IPv4 CIDR matching is supported.
 
 - installs one process-global undici dispatcher that routes each request to the proxy or direct, based on NO_PROXY (with IPv4 CIDR support)
 - sets `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` / `NO_PROXY` so child processes inherit the same route
-- exposes `GET /dsh-proxy/status` → `{ "reachable": boolean }`, which the web client polls to show a "proxy unreachable" toast
+- exposes `GET /dsh-clash-proxy/status` → `{ "reachable": boolean }`, which the web client polls to show a "proxy unreachable" toast
 
 The plugin restores the previous dispatcher and env vars when unloaded.
 

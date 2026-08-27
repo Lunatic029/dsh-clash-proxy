@@ -14,7 +14,7 @@ const EXTERNALS = [
 ]
 
 export default defineConfig({
-  name: 'dsh-proxy/client',
+  name: 'dsh-clash-proxy/client',
   entry: { client: 'src/client/index.ts' },
   outDir: 'client',
   format: 'cjs',
@@ -25,7 +25,7 @@ export default defineConfig({
   external: EXTERNALS,
   outputOptions: {
     entryFileNames: 'client.js',
-    banner: 'window.__ModuleLoader__.load({ id: "dsh-proxy", factory: (require) => {',
+    banner: 'window.__ModuleLoader__.load({ id: "dsh-clash-proxy", factory: (require) => {',
     footer: 'return module.exports; } });',
     intro: 'var module = { exports: {} }; var exports = module.exports;',
   },

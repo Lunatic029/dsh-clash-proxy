@@ -1,5 +1,5 @@
 {
-  "name": "dsh-proxy",
+  "name": "dsh-clash-proxy",
   "version": "0.1.0",
   "description": "Route DeepSeek Harness outbound HTTP (LLM + web search/fetch) through a local forward proxy such as Clash, bypassing loopback and private networks.",
   "license": "MIT",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Lunatic029/dsh-proxy.git"
+    "url": "git+https://github.com/Lunatic029/dsh-clash-proxy.git"
   },
   "type": "module",
   "main": "lib/index.js",
