@@ -1,0 +1,4 @@
+node_modules/
+pnpm-workspace.yaml
+*.tsbuildinfo
+.DS_Store
