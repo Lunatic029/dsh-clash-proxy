@@ -36,7 +36,10 @@ const SAFE_NO_PROXY = [
 ]
 
 function envProxy(): string | undefined {
-  return process.env.HTTPS_PROXY || process.env.HTTP_PROXY || process.env.ALL_PROXY || undefined
+  return process.env.HTTPS_PROXY || process.env.https_proxy
+    || process.env.HTTP_PROXY || process.env.http_proxy
+    || process.env.ALL_PROXY || process.env.all_proxy
+    || undefined
 }
 
 /** One-shot reachability probe of the proxy's host:port. */
