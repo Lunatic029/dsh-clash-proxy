@@ -8,3 +8,7 @@ Initial release.
 - Route child processes (git, curl, pnpm, …) through the proxy via `HTTP_PROXY` / `HTTPS_PROXY` / `NO_PROXY`.
 - Bypass loopback and private networks, with IPv4 CIDR support.
 - Expose `GET /dsh-clash-proxy/status` and show a web toast when the proxy is unreachable.
+
+### Fixed
+
+- Fall back to a direct connection when the proxy is unreachable (for example, Clash off), and re-engage the proxy automatically when it returns. Previously every outbound request — including the LLM API — failed while Clash was off.

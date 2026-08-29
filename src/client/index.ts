@@ -25,7 +25,7 @@ interface Status {
   reachable: boolean
 }
 
-const WARN_TEXT = '代理不可达：未检测到 Clash，外网请求可能失败'
+const WARN_TEXT = '未检测到 Clash，已切换为直连（外网访问可能受限）'
 
 function ProxyWarning(): ReactNode {
   const [show, setShow] = useState(false)

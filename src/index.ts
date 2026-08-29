@@ -36,6 +36,9 @@ const SAFE_NO_PROXY = [
   '169.254.0.0/16',
 ]
 
+/** How often to re-probe the proxy so the plugin follows Clash on/off. */
+const PROBE_INTERVAL_MS = 3000
+
 function envProxy(): string | undefined {
   return process.env.HTTPS_PROXY || process.env.https_proxy
     || process.env.HTTP_PROXY || process.env.http_proxy
@@ -68,29 +71,36 @@ export function apply(ctx: Context, config?: Config): void {
   ]
   const matcher = new NoProxyMatcher(entries)
   const direct = getGlobalDispatcher()
-  const proxyAgent = new ProxyAgent({ uri: proxy })
-  const routing = new RoutingDispatcher(proxyAgent, direct, matcher)
 
-  // Expose the proxy to child processes (git/curl/pnpm/…) through the standard
-  // proxy env vars, so the agent's shell routes through the same proxy. The
-  // dispatcher above covers the harness's own fetch; these cover the rest.
+  // Captured so falling back to direct restores the process env exactly.
   const previousEnv = {
     HTTP_PROXY: process.env.HTTP_PROXY,
     HTTPS_PROXY: process.env.HTTPS_PROXY,
     ALL_PROXY: process.env.ALL_PROXY,
     NO_PROXY: process.env.NO_PROXY,
   }
-  process.env.HTTP_PROXY = proxy
-  process.env.HTTPS_PROXY = proxy
-  process.env.ALL_PROXY = proxy
-  process.env.NO_PROXY = entries.join(',')
 
-  setGlobalDispatcher(routing)
-  ctx.effect(() => () => {
+  let proxyAgent: ProxyAgent | null = null
+  let active = false
+
+  const enableProxy = (): void => {
+    if (active) return
+    proxyAgent = new ProxyAgent({ uri: proxy })
+    setGlobalDispatcher(new RoutingDispatcher(proxyAgent, direct, matcher))
+    process.env.HTTP_PROXY = proxy
+    process.env.HTTPS_PROXY = proxy
+    process.env.ALL_PROXY = proxy
+    process.env.NO_PROXY = entries.join(',')
+    active = true
+  }
+
+  const disableProxy = (): void => {
+    if (!active) return
     setGlobalDispatcher(direct)
-    proxyAgent.close().catch(() => {
+    proxyAgent?.close().catch(() => {
       // Closing the proxy sockets is best-effort on unload.
     })
+    proxyAgent = null
     if (previousEnv.HTTP_PROXY === undefined) delete process.env.HTTP_PROXY
     else process.env.HTTP_PROXY = previousEnv.HTTP_PROXY
     if (previousEnv.HTTPS_PROXY === undefined) delete process.env.HTTPS_PROXY
@@ -99,7 +109,26 @@ export function apply(ctx: Context, config?: Config): void {
     else process.env.ALL_PROXY = previousEnv.ALL_PROXY
     if (previousEnv.NO_PROXY === undefined) delete process.env.NO_PROXY
     else process.env.NO_PROXY = previousEnv.NO_PROXY
-  }, 'dsh-clash-proxy: global dispatcher')
+    active = false
+    process.stderr.write('dsh-clash-proxy: proxy ' + proxy + ' is not reachable - falling back to direct\n')
+  }
+
+  // Fail over to direct when the proxy is down, and re-engage when it returns.
+  const reevaluate = (): void => {
+    void probeProxy(proxy).then((up) => {
+      if (up) enableProxy()
+      else disableProxy()
+    })
+  }
+
+  reevaluate()
+  const timer = setInterval(reevaluate, PROBE_INTERVAL_MS)
+  timer.unref()
+
+  ctx.effect(() => () => {
+    clearInterval(timer)
+    disableProxy()
+  }, 'dsh-clash-proxy: dispatcher')
 
   ctx.inject(['webServer'], (hostCtx: Context) => {
     const host = hostCtx as unknown as HostContext
@@ -113,14 +142,4 @@ export function apply(ctx: Context, config?: Config): void {
       },
     }), 'dsh-clash-proxy: status route')
   })
-
-  // Deferred past the synchronous boot phase: probing while the plugin tree
-  // still loads can starve the event loop and fire the 2s timeout spuriously.
-  setTimeout(() => {
-    void probeProxy(proxy).then((reachable) => {
-      if (!reachable) {
-        process.stderr.write('dsh-clash-proxy: proxy ' + proxy + ' is not reachable - outbound requests may fail until it is up\n')
-      }
-    })
-  }, 3000)
 }
